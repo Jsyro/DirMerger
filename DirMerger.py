@@ -18,6 +18,10 @@
 #       Moves duplicate folders and add a suffix to the file name 
 #       Writes a log file of how things were identified
 
+global V1_1  
+V1_1=0
+
+
 import os
 import os.path
 import sys
@@ -32,14 +36,14 @@ def init ():
     global MergeStatus
     global MergeFlag
     global MergeStats
-    global HasNext
+    if V1_1:    ## partial code for next implementation (Version 1.1)
+        global HasNext
     global CurrDir
-    
     if argc < 2:
         usage()
     CurrDir = sys.argv[1]
     
-    if argc == 3 and CurrDir == "-m":
+    if argc == 3 and sys.argv[2] == "-m":
         MergeFlag = 1
     else:
         MergeFlag = 0
@@ -50,7 +54,8 @@ def init ():
                   'Original Folders': 0
                   }
     MergeStatus = dict()
-    HasNext = 1
+    if V1_1:    ## partial code for next implementation (Version 1.1)
+        HasNext = 1
 
 #   DictToList:
 #   Iterates through the dictionary and creates a formatted
@@ -80,7 +85,7 @@ def logFile():
     log = open('log.txt', 'w')
     MergeList = DictToList(MergeStatus)
     StatList = DictToList(MergeStats)    
-    log.write("Folder: " + CurrDir + "\n")
+    log.write("Folder: " + repr(CurrDir) + "\n")
     for str in StatList:
         log.write(str)                          # write the sorted list to log.txt
     log.write("\nMergeStatus:\n")
@@ -115,16 +120,10 @@ def buildMergeStat(path1, path2):
     matchContents(path2)
 
     
-#def checkNext():
-#    List = DictToList(MergeStatus)
-#   for x,y in List.iter():
-#        if y == "DupDur":
-#            CurrDir = x
-#            HasNext = 1
-#            return
-#        else:
-#            HasNext = 0
-#            return
+def checkNext():    ## partial code for next implementation (Version 1.1)
+    for x,y in MergeStatus.iteritems():
+        if y == "DupDir":
+            return x 
             
 #   getContents:
 #   adds all the items in the list to the dict MergeStatus
@@ -203,22 +202,32 @@ def merge(path1, path2):
 
 if __name__ == '__main__':    
     init()
- 
+    if V1_1:        ## partial code for next implementation (Version 1.1)
+        PrevDir = CurrDir
     srcPath = getCurrPath()
     destPath = makePath(CurrDir)
     
-    if 1: #while HasNext:
-        checkPath(srcPath)
-        checkPath(destPath)
+##    while HasNext:
+    checkPath(srcPath)
+    checkPath(destPath)
     
-        buildMergeStat(srcPath, destPath)
-    
-        if MergeFlag == 1:
-            merge(srcPath, destPath)
-        logFile()
+    buildMergeStat(srcPath, destPath)
         
-        
-        print "\nMerge successful"
+    if MergeFlag == 1:
+        merge(srcPath, destPath)
+    logFile()
+
+    if V1_1:        ## partial code for next implementation (Version 1.1)
+        CurrDir = checkNext()
+       
+        if CurrDir == PrevDir:
+            HasNext = 0
+           # continue
+       
+        if "DupDir" not in MergeStatus.values():
+            HasNext = 0    
+    if MergeFlag == 1:
+        print "\nMerge successful"  
         print "Results written in log.txt"
     else:
         print "\nNo files or folders moved, add '-m' option"
