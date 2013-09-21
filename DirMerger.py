@@ -30,11 +30,13 @@ def init ():
     global MergeStatus
     global MergeFlag
     global MergeStats
-    
+    global HasNext
+    global CurrDir
     if argc < 2:
         usage()
-        
-    if argc == 3 and sys.argv[2] == "-m":
+    CurrDir = sys.argv[1]
+    
+    if argc == 3 and CurrDir == "-m":
         MergeFlag = 1
     else:
         MergeFlag = 0
@@ -44,8 +46,8 @@ def init ():
                   'Original Files': 0, 
                   'Original Folders': 0
                   }
-                  
     MergeStatus = dict()
+    HasNext = 1
 
 #   DictToList:
 #   Iterates through the dictionary and creates a formatted
@@ -66,8 +68,8 @@ def isFile(path, filename):
     if os.path.isfile(newpath):
         return 1
     else:
-    return 0
-    
+        return 0
+
 #   logFile:
 #   Creates lists from MergeStatus and MergeStats 
 #   sorts said lists and writes it into log.txt
@@ -75,7 +77,7 @@ def logFile():
     log = open('log.txt', 'w')
     MergeList = DictToList(MergeStatus)
     StatList = DictToList(MergeStats)    
-    
+    log.write("Folder: " + CurrDir + "\n")
     for str in StatList:
         log.write(str)                          # write the sorted list to log.txt
     log.write("\nMergeStatus:\n")
@@ -108,7 +110,19 @@ def checkPath(path):
 def buildMergeStat(path1, path2):
     getContents(path1)
     matchContents(path2)
-     
+
+    
+#def checkNext():
+#    List = DictToList(MergeStatus)
+#   for x,y in List.iter():
+#        if y == "DupDur":
+#            CurrDir = x
+#            HasNext = 1
+#            return
+#        else:
+#            HasNext = 0
+#            return
+            
 #   getContents:
 #   adds all the items in the list to the dict MergeStatus
 #   distinguishes between files and folders and sets the value
@@ -171,35 +185,39 @@ def merge(path1, path2):
         if MergeStatus[x]== "MERGE":     
             os.rename(filepath2, filepath1) #move the file 
     for x in MergeStatus:               # check again for dups
-        if MergeStatus[x]== "ORIGINAL":  #Do Nothing
-            continue
-        
+        if MergeStatus[x] == ("OrgDir" or "OrgFile"):  #Do Nothing
+            continue        
+       
         filepath1 = path1 + "/" + x      #build src path
         filepath2 = path2 + "/" + x      #build dest path
    
         if MergeStatus[x] == "DupFile":
             continue
             
-        if MergeStatus[x] == "DupDir":                    
-                os.rename(filepath2, (filepath1 + "-1")) # move with new name 
+        if MergeStatus[x] == "DupDir":           
+            newfilepath = filepath1 + "/" + x
+            os.rename(filepath2, (newfilepath)) 
 
 if __name__ == '__main__':    
     init()
-      
+ 
     srcPath = getCurrPath()
-    destPath = makePath(sys.argv[1])
-
-    checkPath(srcPath)
-    checkPath(destPath)
+    destPath = makePath(CurrDir)
     
-    buildMergeStat(srcPath, destPath)
+    if 1: #while HasNext:
+        checkPath(srcPath)
+        checkPath(destPath)
     
-    if MergeFlag == 1:
-        merge(srcPath, destPath)
+        buildMergeStat(srcPath, destPath)
+    
+        if MergeFlag == 1:
+            merge(srcPath, destPath)
+        logFile()
+        
+        
         print "\nMerge successful"
         print "Results written in log.txt"
     else:
         print "\nNo files or folders moved, add '-m' option"
         print "Predicted results written in log.txt"
-    logFile()
     print "\nComplete"
