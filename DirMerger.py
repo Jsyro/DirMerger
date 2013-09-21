@@ -1,4 +1,6 @@
 #   DirMerger.py
+#   Made for Python 2.7.3
+#   currently updating for 2.7.5 because it is more standard
 #   Jason Syrotuck
 #   Sept 18 2013
 
@@ -32,6 +34,7 @@ def init ():
     global MergeStats
     global HasNext
     global CurrDir
+    
     if argc < 2:
         usage()
     CurrDir = sys.argv[1]
