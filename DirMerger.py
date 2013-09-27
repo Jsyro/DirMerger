@@ -48,7 +48,7 @@ def init ():
     else:
         MergeFlag = 0
     MergeStats = {'Merged Items': 0,
-                  'Duplicates Files': 0,
+                  'Duplicate Files': 0,
                   'Duplicate Folders': 0,
                   'Original Files': 0, 
                   'Original Folders': 0
@@ -197,7 +197,7 @@ def merge(path1, path2):
             continue
             
         if MergeStatus[x] == "DupDir":           
-            newfilepath = filepath1 + "/" + x
+            newfilepath = filepath1 + "/" + x + "(M)"
             os.rename(filepath2, (newfilepath)) 
 
 if __name__ == '__main__':    
@@ -211,6 +211,7 @@ if __name__ == '__main__':
     checkPath(srcPath)
     checkPath(destPath)
     
+    print MergeStats
     buildMergeStat(srcPath, destPath)
         
     if MergeFlag == 1:
