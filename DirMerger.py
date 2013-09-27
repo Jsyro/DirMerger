@@ -211,7 +211,6 @@ if __name__ == '__main__':
     checkPath(srcPath)
     checkPath(destPath)
     
-    print MergeStats
     buildMergeStat(srcPath, destPath)
         
     if MergeFlag == 1:
